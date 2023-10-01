@@ -1,0 +1,9 @@
+asgiref==3.7.2
+biopython==1.81
+blosum==2.0.2
+Django==4.2.5
+Levenshtein==0.22.0
+numpy==1.26.0
+rapidfuzz==3.3.1
+sqlparse==0.4.4
+tzdata==2023.3
