@@ -107,8 +107,9 @@ class DeBruijnGraph:
         for repeat in repeatStartEnd:
             start = repeat[0] - 1
             end = repeat[1] + 1
-            sequence = "".join(self.sequence[start:end])
-            repeatStrings.append([sequence, start, end + 1])
+            if end - start >= 5: 
+              sequence = "".join(self.sequence[start:end])
+              repeatStrings.append([sequence, start, end + 1])
 
         # Crear un DataFrame
         df = pd.DataFrame(repeatStrings, columns=["TR", "start", "end"])
