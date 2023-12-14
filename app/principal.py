@@ -7,7 +7,7 @@ from datetime import datetime
 import concurrent.futures
 import re
 
-local_file_fasta = "app\\resources\\uniprotkb_taxonomy_id_36329_2023_10_31 (1).fasta"
+local_file_fasta = "app\\resources\\uniprotkb_taxonomy_id_137071_2023_09_13.fasta"
 
 def getname(name): 
     ## patron = r'[^|]+\|[^|]+\|(.*)'

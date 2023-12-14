@@ -2,12 +2,13 @@ import pandas as pd
 import numpy as np 
 
 class DeBruijnGraph:
-  def __init__(self, kmer_size:int, sequence:str) -> None:
+  def __init__(self, kmer_size:int, sequence:str, residues:int=9) -> None:
     self.kmer_size = kmer_size
     self.sequence = "".join(sequence.split())
     self.links = None
     self.kmers = []
     self.cycles = []
+    self.residues = residues
 
   def __build_graph(self, kmers:dict):
     columns = ['start', 'destine', 'link']
@@ -32,7 +33,7 @@ class DeBruijnGraph:
 
         # Revisar la distancia máxima de separación
         if start in visited: # si ya se visitió el prefijo  
-          if link_number - visited[start] <= 6: # determinar el tamañao del ciclo 
+          if link_number - visited[start] <= self.residues: # determinar el tamañao del ciclo 
               if start not in tmp_cycles: # si no tiene creado un temporal de ciclos 
                 tmp_cycles[start] = [[visited[start], link_number]] # se crea el temporal 
               else: 
