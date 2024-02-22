@@ -1,13 +1,15 @@
 from Bio import SeqIO
 import time
-from FASTAhandler import FastaDownloader 
-from BruijnGraph import DeBruijnGraph
+from DeBruijnGraph import DeBruijnGraph
 import pandas as pd 
 from datetime import datetime
 import concurrent.futures
-import re
+from GraphProccesor import GraphProccesor 
 
-local_file_fasta = "app\\resources\\uniprotkb_taxonomy_id_137071_2023_09_13.fasta"
+local_file_fasta = "app\\resources\\uniprotkb_taxonomy_id_36329_2023_10_31.fasta"
+
+def getFilename(filename:str): 
+    return filename.replace('app\\resources\\', "").replace(".fasta", "")
 
 def getname(name): 
     ## patron = r'[^|]+\|[^|]+\|(.*)'
@@ -18,9 +20,11 @@ def process_sequence(record):
     seq = str(record.seq)
     # if record.id.startswith('tr'): 
     start = time.time()
-    bruijn = DeBruijnGraph(sequence=seq, kmer_size=3)
-    print(record.id)
-    repeats = bruijn.proccess()
+    bruijn = DeBruijnGraph(sequence=seq, k=3)
+    # bruijn = DeBruijnGraph(sequence=record, k=3)
+    proccesor = GraphProccesor(deBruijinGraph=bruijn, minimal_residues=9)
+    # print(record.id)
+    repeats = proccesor.proccess() 
     end = time.time()
     duration = end - start 
     repeats['SequenceId'] = getname(record.id)
@@ -41,7 +45,7 @@ if __name__ == "__main__":
             else: 
                 all_repeats = repeats 
 
-    file_name = '.\\app\\resources\\datos_' + datetime.now().strftime('%Y%m%d_%H%M%S') + '.csv'
+    file_name = '.\\app\\resources\\datos_' + getFilename(local_file_fasta) + '_' + datetime.now().strftime('%Y%m%d_%H%M%S') + '.csv'
 
     if all_repeats is not None: 
         all_repeats.to_csv(file_name, index=False)
