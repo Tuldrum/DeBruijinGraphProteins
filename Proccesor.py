@@ -32,7 +32,8 @@ if __name__ == "__main__":
         raise ValueError("Number of workers must be greater than zero")
 
     # Process sequences
-    FastaProccesor.process_sequences_in_parallel(output_csv_path=args.output_csv_path,
+    proccesor = FastaProccesor()
+    proccesor.process_sequences_in_parallel(output_csv_path=args.output_csv_path,
                                                  input_fasta_path=args.input_fasta_path,
                                                  k=args.k_mer_size,
                                                  maximum_residues=args.maximum_residues,

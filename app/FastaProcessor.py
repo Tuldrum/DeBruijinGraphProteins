@@ -11,10 +11,9 @@ from app.DeBruijnGraph import DeBruijnGraph
 from app.GraphProccesor import GraphProccesor
 
 
-class FastaProccesor:
+class FastaProccesor(object):
 
-    @classmethod 
-    def __get_outputfile_name(cls, local_file_fasta, output_csv_path):
+    def __get_outputfile_name(self, local_file_fasta, output_csv_path):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
         pattern = r"[\\\/]([^\\\/]+)\.\w+$"
@@ -25,14 +24,13 @@ class FastaProccesor:
         output_file_path = os.path.join(output_csv_path, f'{file_name}_{timestamp}.csv') 
         return output_file_path
 
-    @classmethod
-    def __get_seq_name(cls, name: str):
+    def __get_seq_name(self, name: str):
         return name.split("|")[-1]
 
-    @classmethod
-    def __process_sequence(
-        cls, record: SeqRecord, k: int = 3, maximum_residues: int = 9
-    ):
+    def process_sequence(self, record: SeqRecord, k: int = 3, maximum_residues: int = 9): 
+        return self.__process_sequence(record, k, maximum_residues)
+
+    def __process_sequence(self, record: SeqRecord, k: int = 3, maximum_residues: int = 9):
         seq = str(record.seq)
         start = time.time()
         bruijn = DeBruijnGraph(sequence=seq, k=k)
@@ -42,13 +40,12 @@ class FastaProccesor:
         repeats = proccesor.proccess()
         end = time.time()
         duration = end - start
-        repeats["SequenceId"] = cls.__get_seq_name(record.id)
+        repeats["SequenceId"] = self.__get_seq_name(record.id)
         repeats["Duration"] = duration
-        print(repeats.size, record.id)
+        print(repeats.shape[0], record.id)
         return repeats
 
-    @classmethod
-    def __validate_files(cls, input_fasta_path, output_csv_path):
+    def __validate_files(self, input_fasta_path, output_csv_path):
         ban = True
         try:
             if input_fasta_path and output_csv_path:
@@ -76,17 +73,18 @@ class FastaProccesor:
 
         return ban
 
-    @classmethod
-    def process_sequences_in_parallel(cls, input_fasta_path, output_csv_path, k=3, maximum_residues=9, workers=4):
-        if cls.__validate_files(input_fasta_path=input_fasta_path, output_csv_path=output_csv_path):
+    def process_sequences_in_parallel(self, input_fasta_path, output_csv_path, k=3, maximum_residues=9, workers=4):
+        if self.__validate_files(input_fasta_path=input_fasta_path, output_csv_path=output_csv_path):
             all_repeats = None
             with concurrent.futures.ProcessPoolExecutor(
                 max_workers=workers
             ) as executor:
                 records = list(SeqIO.parse(input_fasta_path, "fasta"))
                 results = executor.map(
-                    lambda record: cls.__process_sequence(record, k, maximum_residues),
+                    self.process_sequence,
                     records,
+                    [k]*len(records), 
+                    [maximum_residues]*len(records)
                 )
 
                 for repeats in results:
@@ -96,6 +94,6 @@ class FastaProccesor:
                         all_repeats = repeats
 
             if all_repeats is not None:
-                file_path = cls.__get_outputfile_name(local_file_fasta=input_fasta_path, output_csv_path=output_csv_path)
+                file_path = self.__get_outputfile_name(local_file_fasta=input_fasta_path, output_csv_path=output_csv_path)
                 all_repeats.to_csv(file_path, index=False)
                 print(f"Results saved to '{output_csv_path}'.")
