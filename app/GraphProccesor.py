@@ -1,8 +1,8 @@
-from DeBruijnGraph import DeBruijnGraph
 from iteration_utilities import flatten
 import pandas as pd
 import numpy as np
 import copy
+from app.DeBruijnGraph import DeBruijnGraph
 
 
 class GraphProccesor:

@@ -1,0 +1,22 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none",
+    "launch": {
+        "configurations": [
+            {
+                "name": "Python: Proccesor.py",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder}/Proccesor.py",
+                "args": [
+                    "--output_csv_path",
+                    ".\\resources\\results",
+                    "--input_fasta_path",
+                    ".\\resources\\uniprotkb_taxonomy_id_137071_2023_09_13.fasta"
+                ]
+            }
+        ]
+    }
+}
