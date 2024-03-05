@@ -10,8 +10,8 @@ def validate_file_path(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="DeBruijn-Based Tandem Repeats Finder")
-    parser.add_argument("--output_csv_path", type=validate_file_path, required=True,
-                        help="Path to the output CSV file")
+    parser.add_argument("--output_folder_path", type=validate_file_path, required=True,
+                        help="Path to the output folder")
     parser.add_argument("--input_fasta_path", type=validate_file_path, required=True,
                         help="Path to the input fasta file")
     parser.add_argument("--k_mer_size", type=int, default=3,
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Process sequences
     proccesor = FastaProccesor()
-    proccesor.process_sequences_in_parallel(output_csv_path=args.output_csv_path,
+    proccesor.process_sequences_in_parallel(output_folder_path=args.output_folder_path,
                                                  input_fasta_path=args.input_fasta_path,
                                                  k=args.k_mer_size,
                                                  maximum_residues=args.maximum_residues,
