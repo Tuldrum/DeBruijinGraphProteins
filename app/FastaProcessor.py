@@ -13,7 +13,7 @@ from app.GraphProccesor import GraphProccesor
 
 class FastaProccesor(object):
 
-    def __get_outputfile_name(self, local_file_fasta, output_csv_path):
+    def __get_outputfile_name(self, local_file_fasta, output_folder_path):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
         pattern = r"[\\\/]([^\\\/]+)\.\w+$"
@@ -21,7 +21,7 @@ class FastaProccesor(object):
         file_name = 'results'
         if match: 
             file_name = match.group(1)
-        output_file_path = os.path.join(output_csv_path, f'{file_name}_{timestamp}.csv') 
+        output_file_path = os.path.join(output_folder_path, f'{file_name}_{timestamp}.csv') 
         return output_file_path
 
     def __get_seq_name(self, name: str):
@@ -45,17 +45,17 @@ class FastaProccesor(object):
         print(repeats.shape[0], record.id)
         return repeats
 
-    def __validate_files(self, input_fasta_path, output_csv_path):
+    def __validate_files(self, input_fasta_path, output_folder_path):
         ban = True
         try:
-            if input_fasta_path and output_csv_path:
+            if input_fasta_path and output_folder_path:
                 # Check if input FASTA file exists
                 if not os.path.exists(input_fasta_path):
                     print("Input FASTA file does not exist.")
                     ban = False
 
                 # Create output directory if it doesn't exist
-                output_directory = os.path.dirname(output_csv_path)
+                output_directory = os.path.dirname(output_folder_path)
                 if not os.path.exists(output_directory) and ban:
                     os.makedirs(output_directory)
                     print(f"Output directory '{output_directory}' created.")
@@ -63,7 +63,7 @@ class FastaProccesor(object):
             elif not input_fasta_path:
                 ban = False
                 print("Please provide a fasta file path")
-            elif not output_csv_path:
+            elif not output_folder_path:
                 ban = False
                 print("Please provide a path to store results")
 
@@ -73,8 +73,8 @@ class FastaProccesor(object):
 
         return ban
 
-    def process_sequences_in_parallel(self, input_fasta_path, output_csv_path, k=3, maximum_residues=9, workers=4):
-        if self.__validate_files(input_fasta_path=input_fasta_path, output_csv_path=output_csv_path):
+    def process_sequences_in_parallel(self, input_fasta_path, output_folder_path, k=3, maximum_residues=9, workers=4):
+        if self.__validate_files(input_fasta_path=input_fasta_path, output_folder_path=output_folder_path):
             all_repeats = None
             with concurrent.futures.ProcessPoolExecutor(
                 max_workers=workers
@@ -94,6 +94,6 @@ class FastaProccesor(object):
                         all_repeats = repeats
 
             if all_repeats is not None:
-                file_path = self.__get_outputfile_name(local_file_fasta=input_fasta_path, output_csv_path=output_csv_path)
+                file_path = self.__get_outputfile_name(local_file_fasta=input_fasta_path, output_folder_path=output_folder_path)
                 all_repeats.to_csv(file_path, index=False)
-                print(f"Results saved to '{output_csv_path}'.")
+                print(f"Results saved to '{output_folder_path}'.")

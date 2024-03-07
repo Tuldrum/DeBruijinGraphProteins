@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument("--input_fasta_path", type=validate_file_path, required=True,
                         help="Path to the input fasta file")
     parser.add_argument("--k_mer_size", type=int, default=3,
-                        help="Size of k-mer (default: 3)")
+                        help="Size of k-mer greater or equal to 3. (default: 3).")
     parser.add_argument("--maximum_residues", type=int, default=9,
                         help="Maximum number of residues (default: 9)")
     parser.add_argument("--workers", type=int, default=4,
