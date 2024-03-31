@@ -14,7 +14,7 @@
                     "--output_folder_path",
                     ".\\resources\\results",
                     "--input_fasta_path",
-                    ".\\resources\\uniprotkb_taxonomy_id_36329_2023_10_31.fasta"
+                    ".\\resources\\uniprotkb_taxonomy_id_137071_2023_09_13.fasta"
                 ]
             }
         ]

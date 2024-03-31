@@ -11,6 +11,7 @@ class GraphProccesor:
         self.__deBruijinGraph = deBruijinGraph
         self.__minimal_residues = minimal_residues
         self.__repeats_found = None 
+        self.__minimal_size = 9
 
     @property
     def deBruijnGraph(self) -> DeBruijnGraph : 
@@ -123,7 +124,7 @@ class GraphProccesor:
         for cycle in cycles:
             flattened_cylce = list(flatten(cycle))
             x0, x1 = min(flattened_cylce), max(flattened_cylce) + k_left
-            if x1 - x0 > 3:
+            if x1 - x0 + 1 >= self.__minimal_size:
                 str_cycle = self.__deBruijinGraph.get_sub_sequence(x0=x0, x1=x1)
                 str_cycles.append([str_cycle, x0, x1])
         return str_cycles

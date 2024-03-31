@@ -40,7 +40,8 @@ class FastaProccesor(object):
         repeats = proccesor.proccess()
         end = time.time()
         duration = end - start
-        repeats["SequenceId"] = self.__get_seq_name(record.id)
+        # repeats["SequenceId"] = self.__get_seq_name(record.id)
+        repeats["SequenceId"] = record.id
         repeats["Duration"] = duration
         print(repeats.shape[0], record.id)
         return repeats
