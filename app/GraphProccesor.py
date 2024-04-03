@@ -7,11 +7,12 @@ from app.DeBruijnGraph import DeBruijnGraph
 
 class GraphProccesor:
 
-    def __init__(self, deBruijinGraph: DeBruijnGraph, minimal_residues: int) -> None:
+    def __init__(self, deBruijinGraph: DeBruijnGraph, sml: int, minimal_size: int, umbral:int) -> None:
         self.__deBruijinGraph = deBruijinGraph
-        self.__minimal_residues = minimal_residues
+        self.__sml = sml
+        self.__minimal_size = minimal_size
+        self.__umbral = umbral
         self.__repeats_found = None 
-        self.__minimal_size = 9
 
     @property
     def deBruijnGraph(self) -> DeBruijnGraph : 
@@ -44,17 +45,34 @@ class GraphProccesor:
 
         return current_link, max_link
 
-    def __check_and_update_cycles(self, start, link_number, visited, tmp_cycles, cycles):
-        if link_number - visited[start] <= self.__minimal_residues:
+    def __validate_umbral(self, tmp_dist_cycles, new_dist_cycle): 
+        min_dist = abs(min(tmp_dist_cycles) - new_dist_cycle)
+        max_dist = abs(max(tmp_dist_cycles) - new_dist_cycle)
+        return True if min_dist <= self.__umbral and max_dist <= self.__umbral else False
+    
+
+    def __check_and_update_cycles(self, start, link_number, visited, tmp_cycles, cycles, tpm_dist_cycles):
+        ban = True 
+        if link_number - visited[start] <= self.__sml:
             if start not in tmp_cycles:
                 tmp_cycles[start] = [[visited[start], link_number]]
+                tpm_dist_cycles[start] = [abs(visited[start] - link_number)]
             else:
-                tmp_cycles[start].append([visited[start], link_number])
-        else:
+                dist = abs(visited[start] - link_number)
+                if self.__validate_umbral(tpm_dist_cycles[start], dist): 
+                    tmp_cycles[start].append([visited[start], link_number])
+                    tpm_dist_cycles[start].append(dist)
+                else: 
+                    ban = False 
+        else: 
+            ban = False
+
+        if ban is False: 
             if start in tmp_cycles:
                 if len(tmp_cycles[start]) > 1 or tmp_cycles[start][0][0] + 1 == tmp_cycles[start][0][1]:
                     cycles.extend(tmp_cycles[start])
                 del tmp_cycles[start]
+                del tpm_dist_cycles[start]
 
     def __get_next_link(self, links, destine, link_number, max_link):
         next_link = None
@@ -75,8 +93,10 @@ class GraphProccesor:
         current_link, max_link = self.__get_max_and_min_links() 
 
         tmp_cycles = {}
+        tpm_dist_cycles = {}
         visited = {}
         cycles = []
+
         while current_link is not None:
             start = current_link[0]
             destine = current_link[1]
@@ -84,7 +104,7 @@ class GraphProccesor:
 
             # Revisar la distancia máxima de separación
             if start in visited:
-                self.__check_and_update_cycles(start, link_number, visited, tmp_cycles, cycles)
+                self.__check_and_update_cycles(start, link_number, visited, tmp_cycles, cycles, tpm_dist_cycles)
 
             visited[start] = link_number
             current_link = self.__get_next_link(links, destine, link_number, max_link)

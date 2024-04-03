@@ -27,15 +27,15 @@ class FastaProccesor(object):
     def __get_seq_name(self, name: str):
         return name.split("|")[-1]
 
-    def process_sequence(self, record: SeqRecord, k: int = 3, maximum_residues: int = 9): 
-        return self.__process_sequence(record, k, maximum_residues)
+    def process_sequence(self, record: SeqRecord, k: int = 3, sml: int = 9, minimal_size: int = 9, umbral: int = 2): 
+        return self.__process_sequence(record, k, sml, minimal_size, umbral)
 
-    def __process_sequence(self, record: SeqRecord, k: int = 3, maximum_residues: int = 9):
+    def __process_sequence(self, record: SeqRecord, k: int = 3, sml: int = 9, minimal_size: int = 9, umbral: int = 2):
         seq = str(record.seq)
         start = time.time()
         bruijn = DeBruijnGraph(sequence=seq, k=k)
         proccesor = GraphProccesor(
-            deBruijinGraph=bruijn, minimal_residues=maximum_residues
+            deBruijinGraph=bruijn, sml=sml, minimal_size = minimal_size, umbral=umbral, 
         )
         repeats = proccesor.proccess()
         end = time.time()
@@ -74,7 +74,7 @@ class FastaProccesor(object):
 
         return ban
 
-    def process_sequences_in_parallel(self, input_fasta_path, output_folder_path, k=3, maximum_residues=9, workers=4):
+    def process_sequences_in_parallel(self, input_fasta_path, output_folder_path, k=3, sml=9, workers=4, minimal_size = 9, umbral = 14):
         if self.__validate_files(input_fasta_path=input_fasta_path, output_folder_path=output_folder_path):
             all_repeats = None
             with concurrent.futures.ProcessPoolExecutor(
@@ -85,7 +85,9 @@ class FastaProccesor(object):
                     self.process_sequence,
                     records,
                     [k]*len(records), 
-                    [maximum_residues]*len(records)
+                    [sml]*len(records), 
+                    [minimal_size]*len(records), 
+                    [umbral]*len(records)
                 )
 
                 for repeats in results:
