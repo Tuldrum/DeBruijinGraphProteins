@@ -14,7 +14,9 @@
                     "--output_folder_path",
                     ".\\resources\\results",
                     "--input_fasta_path",
-                    ".\\resources\\uniprotkb_proteome_UP000054289_2024_03_15.fasta"
+                    ".\\resources\\uniprotkb_proteome_UP000001450_2024_03_15.fasta", 
+                    "--umbral", 
+                    "2"
                 ]
             }
         ]

@@ -13,6 +13,7 @@ class GraphProccesor:
         self.__minimal_size = minimal_size
         self.__umbral = umbral
         self.__repeats_found = None 
+        self._k = self.__deBruijinGraph.kmer_size
 
     @property
     def deBruijnGraph(self) -> DeBruijnGraph : 
@@ -53,7 +54,7 @@ class GraphProccesor:
 
     def __check_and_update_cycles(self, start, link_number, visited, tmp_cycles, cycles, tpm_dist_cycles):
         ban = True 
-        if link_number - visited[start] <= self.__sml:
+        if (link_number - 1)  - (visited[start] + self._k-2) <= self.__sml:
             if start not in tmp_cycles:
                 tmp_cycles[start] = [[visited[start], link_number]]
                 tpm_dist_cycles[start] = [abs(visited[start] - link_number)]
@@ -82,9 +83,10 @@ class GraphProccesor:
 
     def __add_remaining_cycles(self, tmp_cycles, cycles):
         for _, v in tmp_cycles.items():
-            if len(v) == 1 and v[0] not in cycles and v[0][0] + 1 == v[0][1]:
+            # Si solo hay un subciclo en la lista y no está en los ciclos encontrados y es de tipo NNN 
+            if len(v) == 1 and v[0] not in cycles and v[0][0] + 1 == v[0][1]: 
                 cycles.extend(v)
-            if len(v) > 1:
+            if len(v) > 1: # [[], []]
                 cycles_to_add = [c for c in v if c not in cycles]
                 cycles.extend(cycles_to_add)
 
@@ -117,33 +119,34 @@ class GraphProccesor:
         cycles = sorted(cycles, key=lambda x: x[0])
         previous_cycle: list = None
         cycles_found = []
+        k_const = (self._k-2)
+        counter_cycles = 1
         for cycle in cycles:
-            cycle = [cycle]
             if previous_cycle is None:
-                previous_cycle = cycle
+                previous_cycle = [cycle[0], cycle[1] + k_const]
             else:
-                a_0, a_1 = np.min(previous_cycle), np.max(previous_cycle)
-                b_0, _ = np.min(cycle), np.max(cycle)
+                a_0, a_1 = np.min(previous_cycle), np.max(previous_cycle) # ciclo ant 
+                b_0, b_1 = np.min(cycle), np.max(cycle) + (self._k-2) # ciclo nuevo 
 
-                if b_0 > a_1:
-                    if len(previous_cycle) > 1:
+                if b_0 > a_1: 
+                    if counter_cycles > 1: 
                         cycles_found.append(previous_cycle)
-                    previous_cycle = cycle
+                    previous_cycle = [b_0, b_1]
+                    counter_cycles = 1 
 
                 elif a_0 <= b_0 <= a_1:
-                    previous_cycle.extend(cycle)
+                    previous_cycle = [a_0, b_1 if b_1 > a_1 else a_1]
+                    counter_cycles = counter_cycles + 1
 
-        if previous_cycle:
+        if previous_cycle and counter_cycles > 1:
             cycles_found.append(previous_cycle)
 
         return cycles_found
 
     def __get_str_repeats(self, cycles) -> list:
         str_cycles: list = []
-        k_left = self.__deBruijinGraph.kmer_size - 2
         for cycle in cycles:
-            flattened_cylce = list(flatten(cycle))
-            x0, x1 = min(flattened_cylce), max(flattened_cylce) + k_left
+            x0, x1 = min(cycle), max(cycle) 
             if x1 - x0 + 1 >= self.__minimal_size:
                 str_cycle = self.__deBruijinGraph.get_sub_sequence(x0=x0, x1=x1)
                 str_cycles.append([str_cycle, x0, x1])
