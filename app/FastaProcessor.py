@@ -24,23 +24,40 @@ class FastaProccesor(object):
         output_file_path = os.path.join(output_folder_path, f'{file_name}_{timestamp}.csv') 
         return output_file_path
 
-    def __get_seq_name(self, name: str):
-        return name.split("|")[-1]
+    def process_sequence(self, record: SeqRecord, 
+                            k: int = 3, 
+                            sml: int = 9, 
+                            minimal_size: int = 9, 
+                            umbral: int = 2, 
+                            max_dist_pos: int = 3, 
+                            min_cycles_joined: int = 3
+                            ): 
+        return self.__process_sequence(record, k, sml, minimal_size, umbral, max_dist_pos, min_cycles_joined)
 
-    def process_sequence(self, record: SeqRecord, k: int = 3, sml: int = 9, minimal_size: int = 9, umbral: int = 2): 
-        return self.__process_sequence(record, k, sml, minimal_size, umbral)
-
-    def __process_sequence(self, record: SeqRecord, k: int = 3, sml: int = 9, minimal_size: int = 9, umbral: int = 2):
+    def __process_sequence(self, 
+                            record: SeqRecord, 
+                            k: int = 3, 
+                            sml: int = 9, 
+                            minimal_size: int = 9, 
+                            umbral: int = 2, 
+                            max_dist_pos: int = 3, 
+                            min_cycles_joined: int = 3
+                            ):
+        
         seq = str(record.seq)
         start = time.time()
         bruijn = DeBruijnGraph(sequence=seq, k=k)
         proccesor = GraphProccesor(
-            deBruijinGraph=bruijn, sml=sml, minimal_size = minimal_size, umbral=umbral, 
+            deBruijinGraph=bruijn, 
+            sml=sml, 
+            minimal_size = minimal_size, 
+            umbral=umbral,
+            max_dist_pos=max_dist_pos, 
+            min_cycles_joined=min_cycles_joined 
         )
         repeats = proccesor.proccess()
         end = time.time()
         duration = end - start
-        # repeats["SequenceId"] = self.__get_seq_name(record.id)
         repeats["SequenceId"] = record.id
         repeats["Duration"] = duration
         print(repeats.shape[0], record.id)
@@ -74,7 +91,16 @@ class FastaProccesor(object):
 
         return ban
 
-    def process_sequences_in_parallel(self, input_fasta_path, output_folder_path, k=3, sml=9, workers=4, minimal_size = 9, umbral = 14):
+    def process_sequences_in_parallel(self, 
+                                      input_fasta_path, 
+                                      output_folder_path, 
+                                      k=3, sml=9, 
+                                      workers=4, 
+                                      minimal_size = 9, 
+                                      umbral = 14, 
+                                      max_dist_pos: int = 3, 
+                                      min_cycles_joined: int = 3):
+        
         if self.__validate_files(input_fasta_path=input_fasta_path, output_folder_path=output_folder_path):
             all_repeats = None
             with concurrent.futures.ProcessPoolExecutor(
@@ -87,7 +113,9 @@ class FastaProccesor(object):
                     [k]*len(records), 
                     [sml]*len(records), 
                     [minimal_size]*len(records), 
-                    [umbral]*len(records)
+                    [umbral]*len(records),
+                    [max_dist_pos]*len(records), 
+                    [min_cycles_joined]*len(records), 
                 )
 
                 for repeats in results:

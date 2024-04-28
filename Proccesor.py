@@ -24,6 +24,10 @@ if __name__ == "__main__":
                         help="Variation of between sml's of the same tandem repeat (default: 2)")
     parser.add_argument("--workers", type=int, default=4,
                         help="Number of workers for parallel processing (default: 4s)")
+    parser.add_argument("--max_dist_pos", type=int, default=3,
+                        help="Number of workers for parallel processing (default: 3)")
+    parser.add_argument("--min_cycles_joined", type=int, default=3,
+                        help="Number of workers for parallel processing (default: 3)")
 
     args = parser.parse_args()
 
@@ -38,6 +42,10 @@ if __name__ == "__main__":
         raise ValueError("SML must be greater than zero \" sml > 0 \"")
     if args.workers <= 0:
         raise ValueError("Number of workers must be greater than zero")
+    if args.max_dist_pos <= 0:
+        raise ValueError("Number of max_dist_pos must be greater than zero")
+    if args.min_cycles_joined < 0:
+        raise ValueError("Number of min_cycles_joined must be greater than zero")
 
     # Process sequences
     proccesor = FastaProccesor()
@@ -47,4 +55,6 @@ if __name__ == "__main__":
                                                  sml=args.sml,
                                                  minimal_size = args.minimal_size, 
                                                  umbral = args.umbral, 
-                                                 workers=args.workers)
+                                                 workers=args.workers, 
+                                                 max_dist_pos=args.max_dist_pos, 
+                                                 min_cycles_joined=args.min_cycles_joined)

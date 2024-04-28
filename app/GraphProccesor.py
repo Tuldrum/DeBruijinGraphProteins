@@ -7,13 +7,18 @@ from app.DeBruijnGraph import DeBruijnGraph
 
 class GraphProccesor:
 
-    def __init__(self, deBruijinGraph: DeBruijnGraph, sml: int, minimal_size: int, umbral:int) -> None:
+    def __init__(self, 
+                deBruijinGraph: DeBruijnGraph, 
+                sml: int, minimal_size: int, umbral:int, 
+                max_dist_pos:int, min_cycles_joined:int) -> None:
         self.__deBruijinGraph = deBruijinGraph
         self.__sml = sml
         self.__minimal_size = minimal_size
         self.__umbral = umbral
         self.__repeats_found = None 
         self._k = self.__deBruijinGraph.kmer_size
+        self.__max_dist_pos = max_dist_pos 
+        self.__min_cycles_joined = min_cycles_joined
 
     @property
     def deBruijnGraph(self) -> DeBruijnGraph : 
@@ -116,6 +121,39 @@ class GraphProccesor:
         return cycles
 
     def __joining_cycles(self, cycles):
+        cycles = sorted(cycles, key=lambda x: x[0])
+        previous_cycle: list | None = None
+        cycles_found = []
+        cycles_joined = 0 
+        last_position_vs: int | None = None
+
+        for cycle in cycles: 
+            if previous_cycle is None: 
+                previous_cycle = [np.min(cycle), np.max(cycle) + (self._k-2)]
+                last_position_vs = previous_cycle[0]
+            else: 
+                
+                a_0, a_1 = np.min(previous_cycle), np.max(previous_cycle) # ciclo ant 
+                b_0, b_1 = np.min(cycle), np.max(cycle) + (self._k-2) # ciclo nuevo 
+
+                if b_0 > a_1: 
+                    if cycles_joined >= self.__min_cycles_joined: 
+                        cycles_found.append(previous_cycle)
+                    previous_cycle = [b_0, b_1]
+                    cycles_joined = 0
+
+                elif a_0 <= b_0 <= a_1 and b_0 - last_position_vs <= self.__max_dist_pos:
+                    previous_cycle = [a_0, b_1 if b_1 > a_1 else a_1]
+                    cycles_joined+=1 
+
+                last_position_vs = b_0
+                
+        if previous_cycle and self.__min_cycles_joined:
+            cycles_found.append(previous_cycle)
+
+        return cycles_found
+
+    def __joining_cycles_2(self, cycles):
         cycles = sorted(cycles, key=lambda x: x[0])
         previous_cycle: list = None
         cycles_found = []
