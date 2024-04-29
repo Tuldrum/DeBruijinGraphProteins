@@ -12,7 +12,7 @@
                 "program": "${workspaceFolder}/Proccesor.py",
                 "args": [
                     "--output_folder_path",
-                    "C:\\Users\\anmon\\OneDrive\\Documentos\\Repositories\\DeBruijinGraphProteins\\resources\\results",
+                    ".\\resources\\results",
                     "--input_fasta_path",
                     ".\\resources\\uniprotkb_proteome_UP000001450_2024_03_15.fasta", 
                     "--umbral", 

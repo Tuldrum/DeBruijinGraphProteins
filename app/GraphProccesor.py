@@ -89,8 +89,9 @@ class GraphProccesor:
     def __add_remaining_cycles(self, tmp_cycles, cycles):
         for _, v in tmp_cycles.items():
             # Si solo hay un subciclo en la lista y no está en los ciclos encontrados y es de tipo NNN 
-            if len(v) == 1 and v[0] not in cycles and v[0][0] + 1 == v[0][1]: 
-                cycles.extend(v)
+            # if len(v) == 1 and v[0] not in cycles and v[0][0] + 1 == v[0][1]: 
+            #     print(v)
+            #     cycles.extend(v)
             if len(v) > 1: # [[], []]
                 cycles_to_add = [c for c in v if c not in cycles]
                 cycles.extend(cycles_to_add)
@@ -148,7 +149,8 @@ class GraphProccesor:
 
                 last_position_vs = b_0
                 
-        if previous_cycle and self.__min_cycles_joined:
+        if previous_cycle and cycles_joined >= self.__min_cycles_joined:
+            print(previous_cycle)
             cycles_found.append(previous_cycle)
 
         return cycles_found
